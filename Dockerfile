@@ -1,6 +1,6 @@
 ###################################
 #Build stage
-FROM golang:1.15-alpine3.12 AS build-env
+FROM golang@sha256:b1cbf0ccd3fa8220857a8e838b533b41135c1fd4dcadb31b3341d5fc4798f04f AS build-env
 ARG GOPROXY
 ENV GOPROXY ${GOPROXY:-direct}
 ARG GITEA_VERSION
@@ -12,13 +12,12 @@ RUN apk --no-cache add build-base git nodejs npm
 #Setup repo
 RUN cd ${GOPATH}/src \
   && go get -u code.gitea.io/gitea \
-  && sed -i s#../fonts/noto-color-emoji/NotoColorEmoji.ttf#https://cdn.jsdelivr.net/npm/noto-color-emoji@1.0.1/ttf/NotoColorEmoji.ttf#g ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less \
-  && cat ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less | grep NotoColorEmoji.ttf
+  && sed -i s#../fonts/noto-color-emoji/NotoColorEmoji.ttf#https://cdn.jsdelivr.net/npm/noto-color-emoji@1.0.1/ttf/NotoColorEmoji.ttf#g ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less
 WORKDIR ${GOPATH}/src/code.gitea.io/gitea
 #Checkout version if set
 RUN if [ -n "${GITEA_VERSION}" ]; then git checkout "${GITEA_VERSION}"; fi \
  && make clean-all build
-FROM alpine:3.12
+FROM multiarch/alpine:aarch64-v3.12
 LABEL maintainer="maintainers@gitea.io"
 EXPOSE 22 3000
 RUN apk --no-cache add \
@@ -53,4 +52,3 @@ CMD ["/bin/s6-svscan", "/etc/s6"]
 COPY docker/root /
 COPY --from=build-env /go/src/code.gitea.io/gitea/gitea /app/gitea/gitea
 RUN ln -s /app/gitea/gitea /usr/local/bin/gitea
-
