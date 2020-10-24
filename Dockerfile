@@ -15,6 +15,8 @@ RUN cd ${GOPATH}/src \
 WORKDIR ${GOPATH}/src/code.gitea.io/gitea
 #Do patch
 RUN sed -i s#../fonts/noto-color-emoji/NotoColorEmoji.ttf#https://cdn.jsdelivr.net/npm/noto-color-emoji@1.0.1/ttf/NotoColorEmoji.ttf#g ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less \
+  && sed -i '/local("Noto Color Emoji")/d' ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less \
+  && sed -i '/local("Noto-Color-Emoji")/d' ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less \
   && cat ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less | grep NotoColorEmoji.ttf \
   && rm -rf ${GOPATH}/src/code.gitea.io/gitea/web_src/fonts/noto-color-emoji/NotoColorEmoji.ttf
 #Checkout version if set
