@@ -11,9 +11,12 @@ ARG CGO_EXTRA_CFLAGS
 RUN apk --no-cache add build-base git nodejs npm
 #Setup repo
 RUN cd ${GOPATH}/src \
-  && go get -u code.gitea.io/gitea \
-  && sed -i s#../fonts/noto-color-emoji/NotoColorEmoji.ttf#https://cdn.jsdelivr.net/npm/noto-color-emoji@1.0.1/ttf/NotoColorEmoji.ttf#g ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less
+  && go get -u code.gitea.io/gitea 
 WORKDIR ${GOPATH}/src/code.gitea.io/gitea
+#Do patch
+RUN sed -i s#../fonts/noto-color-emoji/NotoColorEmoji.ttf#https://cdn.jsdelivr.net/npm/noto-color-emoji@1.0.1/ttf/NotoColorEmoji.ttf#g ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less \
+  && cat ${GOPATH}/src/code.gitea.io/gitea/web_src/less/_base.less | grep NotoColorEmoji.ttf \
+  && rm -rf ${GOPATH}/src/code.gitea.io/gitea/web_src/fonts/noto-color-emoji/NotoColorEmoji.ttf
 #Checkout version if set
 RUN if [ -n "${GITEA_VERSION}" ]; then git checkout "${GITEA_VERSION}"; fi \
  && make clean-all build
