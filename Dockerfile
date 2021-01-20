@@ -1,6 +1,6 @@
 ###################################
 #Build stage
-FROM golang:1.15-alpine3.12 AS build-env
+FROM golang:1.15-alpine3.13 AS build-env
 ARG GOPROXY
 ENV GOPROXY ${GOPROXY:-direct}
 ARG GITEA_VERSION
@@ -22,7 +22,7 @@ WORKDIR ${GOPATH}/src/code.gitea.io/gitea
 #Checkout version if set
 RUN if [ -n "${GITEA_VERSION}" ]; then git checkout "${GITEA_VERSION}"; fi \
  && make clean-all build
-FROM alpine:3.12
+FROM alpine:3.13
 LABEL maintainer="maintainers@gitea.io"
 EXPOSE 22 3000
 RUN apk --no-cache add \
@@ -35,7 +35,6 @@ RUN apk --no-cache add \
     openssh \
     s6 \
     sqlite \
-    socat \
     su-exec \
     gnupg
 RUN addgroup \
